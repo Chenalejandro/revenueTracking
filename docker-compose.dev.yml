@@ -1,0 +1,16 @@
+x-logging: &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+
+services:
+  postgres:
+    <<: *default-logging
+    container_name: postgres
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:9123:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
