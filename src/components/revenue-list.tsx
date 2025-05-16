@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { getRevenueData, deleteRevenueEntry } from "@/lib/actions";
+import { getRevenueData, deleteRevenueItemEntry } from "@/lib/actions";
 import { format } from "date-fns";
 import {
   Table,
@@ -56,7 +56,9 @@ export function RevenueList() {
   if (isGetRevenueDataError) {
     return <div>An error occurred</div>;
   }
-
+  if (!daily) {
+    return <div>No data created</div>;
+  }
   const entries = daily.map((item) => ({
     id: item.id,
     date: new UTCDate(item.date).toISOString(),
@@ -70,7 +72,7 @@ export function RevenueList() {
   const handleDelete = async (id: number) => {
     setIsDeleting(true);
     try {
-      const result = await deleteRevenueEntry(id);
+      const result = await deleteRevenueItemEntry(id);
       if (result.success) {
         await queryClient.invalidateQueries({ queryKey: ["getRevenueData"] });
         toast.success("Entry deleted", {

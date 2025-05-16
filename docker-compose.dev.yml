@@ -14,3 +14,7 @@ services:
     environment:
       POSTGRES_DB: postgres
       POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - revenuetracking-postgres-data:/var/lib/postgresql/data/
+volumes:
+  revenuetracking-postgres-data:

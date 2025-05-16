@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;

@@ -80,7 +80,6 @@ export function RevenueForm() {
     }
 
     const result = await addRevenue(formattedData, data.date);
-
     if (result.success) {
       await queryClient.invalidateQueries({ queryKey: ["getRevenueData"] });
       toast.success("Revenue added", {

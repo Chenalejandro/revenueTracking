@@ -1,10 +1,14 @@
 import "@/styles/globals.css";
 
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "../stack";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -21,12 +25,33 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>
-        <TRPCReactProvider>
-          {children}
-          <Toaster />
-        </TRPCReactProvider>
+    <html
+      lang="es"
+      className={`${geist.variable} min-h-dvh min-w-dvw`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-dvh min-w-dvw">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <StackProvider app={stackServerApp}>
+            <StackTheme>
+              <TRPCReactProvider>
+                <div
+                  data-wrapper=""
+                  className="border-grid flex flex-1 flex-col"
+                >
+                  <SiteHeader />
+                  <main className="flex flex-1 flex-col">{children}</main>
+                </div>
+                <Toaster />
+              </TRPCReactProvider>
+            </StackTheme>
+          </StackProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -33,7 +33,7 @@ import { UTCDate } from "@date-fns/utc";
 const chartConfig = {
   amount: {
     label: "Amount",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -53,6 +53,9 @@ export function RevenueChart() {
   }
   if (isGetRevenueDataError) {
     return <div>An error occurred</div>;
+  }
+  if (!daily) {
+    return <div>No data created</div>;
   }
   // Process data based on selected payment type
   const processedDaily = daily.map((item) => {
@@ -119,10 +122,16 @@ export function RevenueChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              // tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <Bar dataKey="amount" fill="var(--color-amount)" radius={8} />
+            <Bar dataKey="amount" fill="var(--color-amount)" radius={8}>
+              <LabelList
+                position="top"
+                offset={12}
+                className="fill-foreground"
+                fontSize={12}
+              />
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>

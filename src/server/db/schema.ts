@@ -1,8 +1,10 @@
+import { relations } from "drizzle-orm";
 import { decimal, pgTable } from "drizzle-orm/pg-core";
 
-export const revenueTable = pgTable("revenue", (t) => ({
+export const revenueItems = pgTable("revenueItems", (t) => ({
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  date: t.date("date", { mode: "date" }).notNull().defaultNow().unique(),
+  revenueId: t.integer().notNull(),
+  date: t.date("date", { mode: "date" }).notNull(),
   creditCard: decimal("credit_card", { precision: 10, scale: 2 })
     .notNull()
     .default("0"),
@@ -21,8 +23,24 @@ export const revenueTable = pgTable("revenue", (t) => ({
     .default("0"),
 }));
 
-export type Revenue = typeof revenueTable.$inferSelect;
-export type NewRevenue = typeof revenueTable.$inferInsert;
+export const revenueItemsRelations = relations(revenueItems, ({ one }) => ({
+  revenue: one(revenues, {
+    fields: [revenueItems.revenueId],
+    references: [revenues.id],
+  }),
+}));
+
+export const revenues = pgTable("revenues", (t) => ({
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: t.text().notNull().unique(),
+}));
+
+export const revenuesRelations = relations(revenues, ({ many }) => ({
+  revenueItem: many(revenueItems),
+}));
+
+export type RevenueItem = typeof revenueItems.$inferSelect;
+export type NewRevenueItem = typeof revenueItems.$inferInsert;
 
 export type PaymentType =
   | "creditCard"

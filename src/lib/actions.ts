@@ -1,9 +1,10 @@
 "use server";
-import { sql, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
 import { db } from "@/server/db";
-import { revenueTable } from "@/server/db/schema";
+import { revenues, revenueItems } from "@/server/db/schema";
+import { stackServerApp } from "@/stack";
 
 type PaymentData = {
   creditCard: number;
@@ -14,29 +15,57 @@ type PaymentData = {
 };
 
 export async function addRevenue(paymentData: PaymentData, date: Date) {
+  const user = await stackServerApp.getUser();
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
   try {
     const formattedDate = format(date, "yyyy-MM-dd");
-
     // Check if an entry for this date already exists
-    const existingEntries = await db
-      .select()
-      .from(revenueTable)
-      .where(sql`DATE(${revenueTable.date}) = ${formattedDate}`);
-
-    if (existingEntries.length > 0) {
+    const existingEntry = await db
+      .select({
+        id: revenues.id,
+      })
+      .from(revenues)
+      .innerJoin(revenueItems, eq(revenueItems.revenueId, revenues.id))
+      .where(and(eq(revenues.userId, user.id), eq(revenueItems.date, date)))
+      .limit(1);
+    if (existingEntry.length > 0) {
       return {
         success: false,
         error: `Revenue for ${formattedDate} already exists. Delete the existing entry first if you want to replace it.`,
       };
     }
+    await db.transaction(async (tx) => {
+      const revenue =
+        (await tx.query.revenues.findFirst({
+          columns: {
+            id: true,
+          },
+          where: eq(revenues.userId, user.id),
+        })) ??
+        (
+          await tx
+            .insert(revenues)
+            .values({
+              userId: user.id,
+            })
+            .returning({ id: revenues.id })
+        )[0];
 
-    await db.insert(revenueTable).values({
-      date: date,
-      creditCard: paymentData.creditCard.toString(),
-      debitCard: paymentData.debitCard.toString(),
-      moneyTransfer: paymentData.moneyTransfer.toString(),
-      qrCode: paymentData.qrCode.toString(),
-      cash: paymentData.cash.toString(),
+      if (!revenue) {
+        throw new Error("This should be impossible");
+      }
+
+      await tx.insert(revenueItems).values({
+        date: date,
+        revenueId: revenue.id,
+        creditCard: paymentData.creditCard.toString(),
+        debitCard: paymentData.debitCard.toString(),
+        moneyTransfer: paymentData.moneyTransfer.toString(),
+        qrCode: paymentData.qrCode.toString(),
+        cash: paymentData.cash.toString(),
+      });
     });
     revalidatePath("/");
     return { success: true };
@@ -47,13 +76,50 @@ export async function addRevenue(paymentData: PaymentData, date: Date) {
 }
 
 export async function getRevenueData() {
-  const data = await db.select().from(revenueTable).orderBy(revenueTable.date);
+  const user = await stackServerApp.getUser();
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
+  const revenueEntry = await db.query.revenues.findFirst({
+    columns: {
+      id: true,
+    },
+    where: eq(revenues.userId, user.id),
+  });
+  if (!revenueEntry) {
+    return null;
+  }
+  const data = await db
+    .select()
+    .from(revenueItems)
+    .where(eq(revenueItems.revenueId, revenueEntry.id))
+    .orderBy(revenueItems.date);
   return data;
 }
 
-export async function deleteRevenueEntry(id: number) {
+export async function deleteRevenueItemEntry(id: number) {
+  const user = await stackServerApp.getUser();
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
+  const revenueEntry = await db.query.revenues.findFirst({
+    columns: {
+      id: true,
+    },
+    where: eq(revenues.userId, user.id),
+  });
+  if (!revenueEntry) {
+    throw new Error("No revenue entry for the current user");
+  }
   try {
-    await db.delete(revenueTable).where(eq(revenueTable.id, id));
+    await db
+      .delete(revenueItems)
+      .where(
+        and(
+          eq(revenueItems.revenueId, revenueEntry.id),
+          eq(revenueItems.id, id),
+        ),
+      );
     revalidatePath("/");
     return { success: true };
   } catch (error) {
