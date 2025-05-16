@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import { stackServerApp } from "@/stack";
 
 /**
  * 1. CONTEXT
@@ -25,7 +26,9 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const user = await stackServerApp.getUser();
   return {
+    user,
     db,
     ...opts,
   };

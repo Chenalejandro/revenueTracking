@@ -1,6 +1,6 @@
 import { TrendingUp } from "lucide-react";
-import { Button } from "./ui/button";
 import ThemeToggle from "./theme-toggle";
+import UserButton from "./user-button";
 
 export function SiteHeader() {
   return (
@@ -13,12 +13,7 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
             <ThemeToggle />
-            <Button variant="outline" size="sm" className="ml-4">
-              Log in
-            </Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-              Sign up
-            </Button>
+            <UserButton />
           </nav>
         </div>
       </div>

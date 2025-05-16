@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { stackServerApp } from "@/stack";
 
 export async function UserDashboard() {
-  const user = await stackServerApp.getUser({ or: "redirect" });
+  await stackServerApp.getUser({ or: "redirect" });
 
   return (
     <main className="container mx-auto py-8">
