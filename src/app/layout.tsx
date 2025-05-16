@@ -8,7 +8,6 @@ import { Geist } from "next/font/google";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -40,13 +39,7 @@ export default function RootLayout({
           <StackProvider app={stackServerApp}>
             <StackTheme>
               <TRPCReactProvider>
-                <div
-                  data-wrapper=""
-                  className="border-grid flex flex-1 flex-col"
-                >
-                  <SiteHeader />
-                  <main className="flex flex-1 flex-col">{children}</main>
-                </div>
+                {children}
                 <Toaster />
               </TRPCReactProvider>
             </StackTheme>

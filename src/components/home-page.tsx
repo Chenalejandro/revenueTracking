@@ -44,10 +44,13 @@ export function HomePage() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button
+                    asChild
                     size="lg"
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    {"Get Started - It's Free"}
+                    <Link href="/handler/sign-in">
+                      {"Get Started - It's Free"}
+                    </Link>
                   </Button>
                 </div>
                 <div className="flex items-center space-x-4 text-sm">
@@ -288,7 +291,9 @@ export function HomePage() {
                   size="lg"
                   className="bg-white text-emerald-600 hover:bg-gray-100"
                 >
-                  {"Get Started - It's Free"}
+                  <Link href="/handler/sign-in">
+                    {"Get Started - It's Free"}
+                  </Link>
                 </Button>
               </div>
             </div>
