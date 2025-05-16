@@ -47,7 +47,7 @@ export function HomePage() {
                     size="lg"
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    Get Started - It's Free
+                    {"Get Started - It's Free"}
                   </Button>
                 </div>
                 <div className="flex items-center space-x-4 text-sm">
@@ -288,7 +288,7 @@ export function HomePage() {
                   size="lg"
                   className="bg-white text-emerald-600 hover:bg-gray-100"
                 >
-                  Get Started - It's Free
+                  {"Get Started - It's Free"}
                 </Button>
               </div>
             </div>
